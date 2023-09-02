@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/',[PostController::class,'index'])
+    ->name('root');
+    // name('root')でルーティングを設定する
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -28,4 +29,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::resource('posts',PostController::class)
+    ->only(['create','store','edit','update','destroy'])
+    ->middleware('auth');
+    // 認証している人だけ見ることができるコマンド。しかしこれだとログインしている人は全く見れなくなる。
+    // なのでonlyで認証している人が見ることのできる画面を定義する
+
+Route::resource('posts',PostController::class)
+    ->only(['show','index']);
 require __DIR__.'/auth.php';
