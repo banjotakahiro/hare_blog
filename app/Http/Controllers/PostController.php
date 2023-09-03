@@ -70,9 +70,12 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $post = Post::find($id);
+        // withは紐づいている別の情報も持ってくることができる。今回はユーザーの情報になっている。
+        $post = Post::with(['user'])->find($id);
+        // コメントに紐づくユーザー情報も取得している
+        $comments = $post->comments()->latest()->get()->load(['user']);
 
-        return view('posts.show', compact('post'));
+        return view('posts.show', compact('post','comments'));
     }
 
     /**
@@ -90,7 +93,6 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, string $id)
     {
-
         $post = Post::find($id);
 
         if ($request->user()->cannot('update', $post)) {
