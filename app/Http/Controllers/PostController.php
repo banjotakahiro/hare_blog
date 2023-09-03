@@ -14,8 +14,10 @@ class PostController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return view('posts.index');
+    {   
+    // すでにあるデータを見つけてくるか、なにか動作をさせるかの違い。
+        $posts = Post::latest()->paginate(4);
+        return view('posts.index',compact('posts'));
     }
 
     /**
@@ -35,7 +37,7 @@ class PostController extends Controller
         $post->user_id = $request->user()->id;
 
         $file = $request->file('image');
-        $post->image = date('YmdHis') . '_' . $file->getClientOriginalName();
+        $post->image = self::createFileName($file);
 
         // トランザクション開始
         DB::beginTransaction();
@@ -93,6 +95,7 @@ class PostController extends Controller
 
         $post = Post::find($id);
         // ユーザー以外は編集できないように強固にする
+        // ここのupdateはpostpolicyから引っ張ってきている
         if ($request->user()->cannot('update', $post)) {
             return redirect()->route('posts.show', $post)
                 ->withErrors('自分の記事以外は更新できません');
@@ -102,7 +105,7 @@ class PostController extends Controller
 
         if ($file) {
             $delete_file_path = 'images/posts/' . $post->image;
-            $post->image = date('YmdHis') . '_' . $file->getClientOriginalName();
+            $post->image = self::createFileName($file);
         }
 
         $post->fill($request->all());
@@ -146,5 +149,10 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private static function createFileName($file)
+    {
+        return  date('YmdHis') . '_' . $file->getClientOriginalName();
     }
 }
