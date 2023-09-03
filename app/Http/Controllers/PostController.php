@@ -14,12 +14,10 @@ class PostController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
-    // $postはすでにあるデータを見つけてくるか、なにか動作をさせるかの違い。
-    // with('user')によりuser情報も取ってくる
-    // クエリ文による短縮が可能になる
+    {
         $posts = Post::with('user')->latest()->paginate(4);
-        return view('posts.index',compact('posts'));
+
+        return view('posts.index', compact('posts'));
     }
 
     /**
@@ -56,7 +54,6 @@ class PostController extends Controller
 
             // トランザクション終了(成功)
             DB::commit();
-
         } catch (\Exception $e) {
             // トランザクション終了(失敗)
             DB::rollback();
@@ -66,7 +63,6 @@ class PostController extends Controller
         return redirect()
             ->route('posts.show', $post)
             ->with('notice', '記事を登録しました');
-
     }
 
     /**
@@ -96,8 +92,7 @@ class PostController extends Controller
     {
 
         $post = Post::find($id);
-        // ユーザー以外は編集できないように強固にする
-        // ここのupdateはpostpolicyから引っ張ってきている
+
         if ($request->user()->cannot('update', $post)) {
             return redirect()->route('posts.show', $post)
                 ->withErrors('自分の記事以外は更新できません');
@@ -106,7 +101,7 @@ class PostController extends Controller
         $file = $request->file('image');
 
         if ($file) {
-            $delete_file_path = 'images/posts/' . $post->image;
+            $delete_file_path = $post->image_path;
             $post->image = self::createFileName($file);
         }
 
@@ -126,14 +121,13 @@ class PostController extends Controller
                 }
 
                 if (!Storage::delete($delete_file_path)) {
-                    Storage::delete('images/posts/' . $post->image);
+                    Storage::delete($post->image_path);
                     throw new \Exception('画像ファイルの削除に失敗しました。');
                 }
             }
 
             // トランザクション終了(成功)
             DB::commit();
-
         } catch (\Exception $e) {
             // トランザクション終了(失敗)
             DB::rollback();
@@ -150,11 +144,37 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::find($id);
+
+        // トランザクション開始
+        // DBを指定することで仮削除という形になる
+        DB::beginTransaction();
+        try {
+            $post->delete();
+
+            // 画像削除
+            // ここで画像が削除される
+            if (!Storage::delete($post->image_path)) {
+                // 例外を投げてロールバックさせる
+                throw new \Exception('画像ファイルの削除に失敗しました。');
+            }
+
+            // トランザクション終了(成功)
+            DB::commit();
+        } catch (\Exception $e) {
+            // トランザクション終了(失敗)
+            // データベースには最初は画像名が削除される
+            // ロールバックにより復活する
+            DB::rollback();
+            return back()->withErrors($e->getMessage());
+        }
+
+        return redirect()->route('posts.index')
+            ->with('notice', '記事を削除しました');
     }
 
     private static function createFileName($file)
     {
-        return  date('YmdHis') . '_' . $file->getClientOriginalName();
+        return date('YmdHis') . '_' . $file->getClientOriginalName();
     }
 }
