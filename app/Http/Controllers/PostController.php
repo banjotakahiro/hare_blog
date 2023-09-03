@@ -15,8 +15,10 @@ class PostController extends Controller
      */
     public function index()
     {   
-    // すでにあるデータを見つけてくるか、なにか動作をさせるかの違い。
-        $posts = Post::latest()->paginate(4);
+    // $postはすでにあるデータを見つけてくるか、なにか動作をさせるかの違い。
+    // with('user')によりuser情報も取ってくる
+    // クエリ文による短縮が可能になる
+        $posts = Post::with('user')->latest()->paginate(4);
         return view('posts.index',compact('posts'));
     }
 
