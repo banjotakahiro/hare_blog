@@ -73,7 +73,7 @@ class PostController extends Controller
         // withは紐づいている別の情報も持ってくることができる。今回はユーザーの情報になっている。
         $post = Post::with(['user'])->find($id);
         // コメントに紐づくユーザー情報も取得している
-        $comments = $post->comments()->latest()->get()->load(['user']);
+        $comments = $post->comments()->latest()->get();
 
         return view('posts.show', compact('post','comments'));
     }

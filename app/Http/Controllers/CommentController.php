@@ -36,7 +36,7 @@ class CommentController extends Controller
         $comment = new Comment($request->all());
         // $comment->body = $request->bodyと似ている
         
-        $comment->user_id = $request->user()->id;
+        $comment->user_id = 0;
 
         // commentsの紐づいているイメージが難しい
         try {
