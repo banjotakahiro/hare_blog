@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
@@ -13,10 +13,27 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $posts = Post::with('user')->latest()->paginate(4);
+    public function index(Request $request)
+    {   
+    /* テーブルから全てのレコードを取得する */
+        $thread = Post::query();
+        
+        
+         /* キーワードから検索処理 */
+         // 任意の変数に受け取った送信された情報を代入します
+         // htmlのinputタグにはname属性に対して'keyword'と設定されているため
+         // $keywordへ$requestの中から、nameが'keyword'のinputを代入します
 
+        $keyword = $request->input('keyword');
+        if(!empty($keyword)) { //もしも、$keywordの中身が空ではない場合に検索処理実行
+            $thread->where('title', 'LIKE', "%{$keyword}%")
+            ->orWhere('body', 'LIKE', "%{$keyword}%")
+            ->get();
+            $posts = $thread->with('user')->latest()->paginate(4);
+        }else {
+            $posts = Post::with('user')->latest()->paginate(4);
+        }
+        
         return view('posts.index', compact('posts'));
     }
 
