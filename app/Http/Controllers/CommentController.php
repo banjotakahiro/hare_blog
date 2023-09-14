@@ -35,7 +35,7 @@ class CommentController extends Controller
         // $request->allでfillableも代入している
         $comment = new Comment($request->all());
         // $comment->body = $request->bodyと似ている
-
+        
         $comment->user_id = $request->user()->id;
 
         // commentsの紐づいているイメージが難しい

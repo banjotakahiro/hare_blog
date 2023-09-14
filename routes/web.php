@@ -41,8 +41,6 @@ Route::resource('posts',PostController::class)
 
 // URLがそれ用に紐づいている。posts.commentsで読み取れる
 
-Route::resource('posts.comments',CommentController::class)
-    ->only(['create','store','edit','update','destroy'])
-    ->middleware('auth');
+Route::resource('posts.comments',CommentController::class);
 
 require __DIR__.'/auth.php';
