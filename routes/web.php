@@ -4,6 +4,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MailSendController;
+use App\Http\Controllers\WarningController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -47,5 +48,7 @@ Route::resource('posts',PostController::class)
 Route::resource('posts.comments',CommentController::class)
     ->only(['create','store','edit','update','destroy'])
     ->middleware('auth');
+
+Route::resource('posts.warnings',WarningController::class);
 
 require __DIR__.'/auth.php';
