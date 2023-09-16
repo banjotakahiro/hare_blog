@@ -14,7 +14,6 @@
                     class="text-red-400 font-bold">{{ date('Y-m-d H:i:s', strtotime('-1 day')) < $post->created_at ? 'NEW' : '' }}</span>
                 {{ $post->created_at }}
             </p>
-            <img src="{{ $post->image_url }}" alt="" class="mb-4">
             <p class="text-gray-700 text-base">{!! nl2br(e($post->body)) !!}</p>
         </article>
         <div class="flex flex-row text-center my-4">
@@ -33,10 +32,18 @@
         </div>
         <hr class="my-4">
 
-        <div class="flex justify-end">
-            <a href="{{ route('posts.comments.create', $post) }}"
-                class="bg-indigo-400 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline block">コメント登録</a>
-        </div>
+        <x-validation-errors :errors="$errors" />
+        <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="rounded pt-3 pb-8 mb-4 flex flex-wrap">
+            @csrf
+            <div class="mb-4">
+                <textarea name="body" rows="2"
+                    class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 w-full py-2 px-3"
+                    required placeholder="本文">{{ old('body') }}</textarea>
+            </div>
+            <input type="submit" value="登録"
+                class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        </form>
+
 
         <section class="font-sans break-normal text-gray-900 ">
             @foreach ($comments as $comment)
