@@ -10,7 +10,7 @@ class MailSendController extends Controller
     public function send(){
         $data = [];
         Mail::send('emails.test', $data, function($message){
-        $message->to('s2270093@ems.u-toyama.ac.jp', 'Test')
+        $message->to('watawata20220404@gmail.com', 'Test')
                 ->subject('This is a test mail');
     });
     }
