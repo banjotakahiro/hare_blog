@@ -3,6 +3,7 @@
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MailSendController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/',[PostController::class,'index'])
     ->name('root');
     // name('root')でルーティングを設定する
+
+Route::get('/mail', [MailSendController::class, 'send']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
